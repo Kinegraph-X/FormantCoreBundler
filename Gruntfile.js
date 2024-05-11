@@ -20,6 +20,8 @@ module.exports = function (grunt) {
 		gruntFilesPath = '_Grunt_files/';
 	let basePath, currentBundle;
 	const distPath = selfPath + '/build';
+	const npmModuleDeployPath = 'perso_node_modules\formantJS_node_module';
+	const nodeModuleDeployPath = 'node_modules\formantjs';
 	
 	currentBundle = 'formantCore';
 	currentName = grunt.cli.options.name;
@@ -73,6 +75,8 @@ module.exports = function (grunt) {
 			currentProject : currentBundle,
 			pathToProject : selfPath,
 			browserifyPath : browserifyPath,
+			npmModuleDeployPath : npmModuleDeployPath,
+			nodeModuleDeployPath : nodeModuleDeployPath
 		},
 		postProcess : function (config) {
 			config.package = pkg;
@@ -80,7 +84,7 @@ module.exports = function (grunt) {
 		}
 	});
 	
-	grunt.registerTask('default', ['browserify:debug', 'exorcise:debug']);
+	grunt.registerTask('default', ['browserify:debug', 'exorcise:debug', 'copy:sourceMapCopyPerso', 'copy:sourceMapCopy']);
 //	grunt.registerTask('build-debug',   ['execute:debug', 'browserify:debug', 'exorcise:debug', 'copy:localRelease']);
 //	grunt.registerTask('build-localRelease',   ['execute:debug', 'browserify:release', 'terser:release', 'copy:localRelease']);
 	
