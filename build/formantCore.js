@@ -750,14 +750,13 @@ module.exports = SpecialDependencyInjector;
 //		window = global;
 //}
 
-// TODO : Should not polute the namespace of this function : think seriously of removing the affectation to vars, as we only need to "execute" the require
 
 if (typeof Object.getOwnPropertyDescriptor(String.prototype, 'escapeRegExp') === 'undefined') { 
-	var Str = _dereq_('src/extendedNative/string');
-	var Arr = _dereq_('src/extendedNative/array');
-	var Bool = _dereq_('src/extendedNative/boolean');
-	var Obj = _dereq_('src/extendedNative/object');
-	var Regex = _dereq_('src/extendedNative/regexp');
+	_dereq_('src/extendedNative/string');
+	_dereq_('src/extendedNative/array');
+	_dereq_('src/extendedNative/boolean');
+	_dereq_('src/extendedNative/object');
+	_dereq_('src/extendedNative/regexp');
 }
 var Validate = _dereq_('src/integrated_libs_&_forks/Validate');
 var Hamster = _dereq_('src/integrated_libs_&_forks/Hamster');
@@ -1196,6 +1195,41 @@ var ComponentPickingInputDef = function(uniqueID, options, model) {
 	// Some CSS stuff (styles are directly injected in the main def below)
 	/**@CSSifySlots placeholder */
 
+	var hostStyles = [
+
+	{
+		"selector": ":host, div",
+		"boxSizing": "border-box",
+		"background": "none",
+		"border": "0",
+		"boxShadow": "none",
+		"margin": "0",
+		"outline": "0",
+		"padding": "0",
+		"verticalAlign": "baseline"
+	},
+	{
+		"selector": ":host",
+		"display": "flex",
+		"flex": "1 1 0",
+		"alignItems": "center",
+		"justifyContent": "space-between",
+		"border": "1px solid #383838",
+		"margin": "2px",
+		"padding": "3px",
+		"borderRadius": "2px"
+	},
+	{
+		"selector": "label",
+		"padding": "2px 7px"
+	}
+
+	];
+	var hostStylesUseCache = {
+		use : false,
+		nameInCache : 'ComponentPickingInputHostStyles'
+	}
+
 	var buttonStyles = [
 
 	{
@@ -1230,41 +1264,6 @@ var ComponentPickingInputDef = function(uniqueID, options, model) {
 	var buttonStylesUseCache = {
 		use : false,
 		nameInCache : 'ComponentPickingInputButtonStyles'
-	}
-
-	var hostStyles = [
-
-	{
-		"selector": ":host, div",
-		"boxSizing": "border-box",
-		"background": "none",
-		"border": "0",
-		"boxShadow": "none",
-		"margin": "0",
-		"outline": "0",
-		"padding": "0",
-		"verticalAlign": "baseline"
-	},
-	{
-		"selector": ":host",
-		"display": "flex",
-		"flex": "1 1 0",
-		"alignItems": "center",
-		"justifyContent": "space-between",
-		"border": "1px solid #383838",
-		"margin": "2px",
-		"padding": "3px",
-		"borderRadius": "2px"
-	},
-	{
-		"selector": "label",
-		"padding": "2px 7px"
-	}
-
-	];
-	var hostStylesUseCache = {
-		use : false,
-		nameInCache : 'ComponentPickingInputHostStyles'
 	}
 	
 	
@@ -3095,7 +3094,7 @@ Ignition.prototype = {};
 Ignition.prototype.objectType = 'Ignition'; 
 
 Ignition.prototype.decorateComponentsThroughDefinitionsCache = function(listDef) {
-	
+//	console.log('decorateComponentsThroughDefinitionsCache');
 	// instanciate DOM objects through cloning : DOM attributes are always static
 	// 					=> iterate on the "views" register
 	if (typeof document !== 'undefined' && typeof document.ownerDocument !== 'undefined')
@@ -3132,18 +3131,19 @@ Ignition.prototype.instanciateDOM = function() {
 		cloneMother,
 		effectiveViewAPI,
 		masterNode;
-
+	
 	views.forEach(function(view, key) {
 		attributes = attributesCache[view._defUID];
 		effectiveViewAPI = view.currentViewAPI;
 		
+//		console.log(view);
 		if (nodes[view._defUID].cloneMother) {
 			view.callCurrentViewAPI('setMasterNode', nodes[view._defUID].cloneMother.cloneNode(true));
 			Object.assign(view.callCurrentViewAPI('getMasterNode'), elementDecorator_OffsetProp);
 		}
 		else {
 			nodes[view._defUID].cloneMother = ElementCreator.createElement(nodes[view._defUID].nodeName, nodes[view._defUID].isCustomElem, Registries.caches.states.cache[view._defUID]);
-
+			
 			alreadyCloned = false;
 			cloneMother = nodes[view._defUID].cloneMother;
 			attributes.forEach(function(attrObject) {
@@ -3525,7 +3525,7 @@ DelayedDecoration.prototype.objectType = 'DelayedDecoration';
  * @param {HierarchicalDefinition} componentListHostDef : an optional definition for a list of components to be instanciaded /!\ RESEVERD for the Dataset Type
  */
 const renderDOM = function(containerSelector, component, componentListHostDef) {
-	const app = new Ignition()
+	const app = new Ignition();
 	app.decorateComponentsThroughDefinitionsCache(componentListHostDef);
 	
 	if (componentListHostDef)
@@ -3533,7 +3533,7 @@ const renderDOM = function(containerSelector, component, componentListHostDef) {
 	
 	if (typeof containerSelector !== 'string')
 		return component;
-
+	
 	document.querySelector(containerSelector).appendChild(component.view.getMasterNode());
 }
 
@@ -4158,20 +4158,6 @@ HierarchicalObject.prototype.overrideParent = function (Idx) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /**
  * @constructor ExtensibleObject
  */
@@ -4372,16 +4358,6 @@ ExtensibleObject.prototype.onExtend = function(namespace) {
 	if (!(namespace.prototype.hasOwnProperty('_asyncRegisterTasks')))
 		namespace.prototype._asyncRegisterTasks = [];
 }
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -4631,6 +4607,12 @@ var ComponentWithView = function(definition, parentView, parent, isChildOfRoot) 
 		definition = TypeManager.mockDef();
 //		definition.getHostDef().nodeName = 'dummy';
 	}
+	else if (!definition) {
+		console.warn('A Component received an undefined definition, maybe you wanted to explicitely pass a null definition ? '
+			+ 'The type is ' + Object.getPrototypeOf(this).objectType + ' '
+			+ '(this check is here to enforce good practices)');
+		return;
+	}
 	
 //	console.log(definition);
 	ComponentWithObservables.call(this, definition, parentView, parent);
@@ -4677,8 +4659,8 @@ ComponentWithView.prototype.instanciateView = function(definition, parentView, p
 ComponentWithView.prototype.setContentFromValueOnView = function(value) {
 	if (typeof value !== 'string' && isNaN(parseInt(value)))
 		return;
-	if (this.view.getWrappingNode().childNodes.length)
-		console.warn('setContentFromValueOnView : replacing the content of a node that already has content. Value is :', value)
+//	if (this.view.getWrappingNode().childNodes.length)
+//		console.warn('setContentFromValueOnView : replacing the content of a node that already has content. Value is :', value)
 	this.view.value = value.toString();		// this.view.value is a "special" setter: it sets textContent OR value, based on the effective node
 };
 
@@ -4686,8 +4668,8 @@ ComponentWithView.prototype.setContentFromValueOnView = function(value) {
  * @abstract
  */
 ComponentWithView.prototype.setContentFromValueOnMemberView = function(value, memberViewIdx) {
-	if (this.view.subViewsHolder.memberAt(memberViewIdx).getWrappingNode().childNodes.length)
-		console.warn('setContentFromValueOnView : replacing the content of a node that already has content. Value is :', value)
+//	if (this.view.subViewsHolder.memberAt(memberViewIdx).getWrappingNode().childNodes.length)
+//		console.warn('setContentFromValueOnView : replacing the content of a node that already has content. Value is :', value)
 	this.view.subViewsHolder.memberAt(memberViewIdx).setContentNoFail(value.toString());		// this.view.value is a "special" setter: it sets textContent OR value, based on the effective node
 };
 
@@ -5597,6 +5579,8 @@ const CompoundComponent = function(definition, parentView, parent, isChildOfRoot
 	this._firstListUIDSeen = null;
 	var shouldExtend = false;
 	
+	
+	
 	if (!definition.getGroupHostDef())
 		console.error('Definition given to CompoundComponent isn\'t a nested HierachicalDefinition.', definition, 'Type is:', definition.getHostDef().type, this);
 		
@@ -5647,7 +5631,7 @@ const CompoundComponent = function(definition, parentView, parent, isChildOfRoot
 	if (shouldExtend)
 		this.extendDefinition(definition);
 	
-	var defaultDef = this.createDefaultDef();
+	var defaultDef = this.createDefaultDef(definition.getHostDef());
 	
 	// When instanciating a CompoundComponent directly from its ctor,  there is no defaultDef : don't try to merge
 	if (defaultDef) {
@@ -5710,6 +5694,7 @@ CompoundComponent.prototype.instanciateSubSections = function(definition) {
 
 CompoundComponent.prototype.instanciateMembers = function(definition) {
 //	console.log(definition.members);
+//	console.log(this.view);
 	var type;
 	definition.members.forEach(function(memberDef) {
 		if (!memberDef.getHostDef && (memberDef.nodeName || memberDef.type)) {
@@ -5721,7 +5706,6 @@ CompoundComponent.prototype.instanciateMembers = function(definition) {
 		//			console.log(type, type in Components, Components);
 //		console.log(type);
 		if (type in Components && type !== 'CompoundComponent') {
-//			console.log(definition);
 			new Components[type](memberDef, this.view, this);
 		}
 		else if (memberDef.getGroupHostDef()) {
@@ -6600,6 +6584,7 @@ Components.CompositorComponent.prototype.acquireCompositor = function(inheriting
 	if (inheritedType in Components || inheritedType in coreComponents) {
 		var objectType = inheritingType.prototype.objectType;
 		inheritingType.prototype.Compositor = coreComponents[inheritedType];
+//		console.log(inheritingType.prototype.Compositor);
 		//		console.log(Object.create(coreComponents[inheritedType].prototype));
 		//		console.log(Components.ExtensibleObject.prototype.mergeOwnProperties(true, Object.create(coreComponents[inheritedType].prototype), inheritingType.prototype));
 		inheritingType.prototype = Components.ExtensibleObject.prototype.mergeOwnProperties(true, Object.create(coreComponents[inheritedType].prototype), inheritingType.prototype);
@@ -6613,21 +6598,35 @@ Components.CompositorComponent.prototype.acquireCompositor = function(inheriting
 
 Components.CompositorComponent.createAppLevelExtendedComponent = function() {
 	var extension2ndPass = {};
+//	console.error(typeof Components.GradientGenerator);
 	for (var componentType in Components) {
-//		console.log(Components[componentType].prototype.hasOwnProperty('extendsCore'), componentType, Components[componentType]);
-
+		if (Components[componentType].hasOwnProperty('dependancyInjectionDone'))
+			continue;
 		// An automatically included component may not really be a component : we have a "special" category that we also include
 		if (typeof Components[componentType].prototype === 'undefined')
-			continue;		 
+			continue;
+			
+//		console.log(componentType, typeof Components[componentType].prototype, Components[componentType].prototype.hasOwnProperty('extendsCore'));
+//		if (!Components[componentType].prototype.hasOwnProperty('extendsCore'))
+//			console.log(Components[componentType].prototype);
+//		console.log(Components[componentType].prototype.hasOwnProperty('extendsCore'), componentType, Components[componentType]);
+				 
 		if (Components[componentType].prototype.hasOwnProperty('extendsCore')) {
 //			console.log(Components[componentType]);
 			Components.CompositorComponent.prototype.acquireCompositor(Components[componentType], Components[componentType].prototype.extendsCore);
+			Components[componentType].dependancyInjectionDone = true;
 		}
-		else if (Components[componentType].prototype.hasOwnProperty('extends'))
+		else if (Components[componentType].prototype.hasOwnProperty('extends')) {
 			extension2ndPass[componentType] = Components[componentType];
+		}
+			
+		
 	}
 	for (var componentType in extension2ndPass) {
+		if (Components[componentType].hasOwnProperty('dependancyInjectionDone'))
+			continue;
 		Components.CompositorComponent.prototype.extendFromCompositor(Components[componentType], Components[Components[componentType].prototype.extends]);
+		Components[componentType].dependancyInjectionDone = true;
 	}
 }
 
@@ -8501,6 +8500,7 @@ var ComponentView = function(definition, parentView, parent, isChildOfRoot) {
 		return;
 	}
 	else if (!(parentView instanceof ComponentView) && def.nodeName !== 'app-root') {
+//		console.log(parentView, ComponentView);
 		console.warn('no parentView given to a componentView : nodeName is', def.nodeName, '& type is', def.type);
 	}
 		
@@ -11900,7 +11900,9 @@ Object.assign(exportedObjects, {
 	propsAreArray : propsAreArray,									// Array
 	reactivityQueries : reactivityQueries,							// Array
 	eventQueries : eventQueries,									// Array
-	propsArePrimitives : propsArePrimitives							// Array
+	propsArePrimitives : propsArePrimitives,						// Array
+	HierarchicalTemplate : HierarchicalComponentDefModel,
+	ViewTemplate : SingleLevelComponentDefModel
 });
 
 
@@ -17880,6 +17882,18 @@ CSSPropertyBuffer.prototype.functionToCanonical = function(valueAsParsed) {
 			value.repr += '")';
 			return value;
 		}
+		else if (valueAsParsed.name === 'translate' || valueAsParsed.name === 'rotate' || valueAsParsed.name === 'scale') {
+			value = new (LocalTokenFromParserFactory(null, 'TRANSFORM'))();
+			value.type = valueAsParsed.name;
+			value.repr = valueAsParsed.name + '(';
+			valueAsParsed.value.forEach(function(val, key) {
+				value.repr += val.repr;
+				if (key < valueAsParsed.value.length - 1)
+					value.repr += ', ';
+			});
+			value.repr += ')';
+			return value;
+		}
 		
 		console.warn('CSSPropertyBuffer->functionToCanonical: unsupported function given (' + valueAsParsed.name + ').');
 		return new (LocalTokenFromParserFactory(null, 'UNDEFINED'))();
@@ -18552,7 +18566,9 @@ SplittedCSSPropertyDescriptors.boxModelAttributes = {
 	borderStartStartRadius : CSSPropertyDescriptorFactory('borderStartStartRadius', '', false, [], false, false),
 	borderEndStartRadius : CSSPropertyDescriptorFactory('borderEndStartRadius', '', false, [], false, false),
 	borderEndEndRadius : CSSPropertyDescriptorFactory('borderEndEndRadius', '', false, [], false, false),
-	borderStartEndRadius : CSSPropertyDescriptorFactory('borderStartEndRadius', '', false, [], false)
+	borderStartEndRadius : CSSPropertyDescriptorFactory('borderStartEndRadius', '', false, [], false),
+	
+	transform : CSSPropertyDescriptorFactory('transform', '', false, [], false)
 }
 
 SplittedCSSPropertyDescriptors.strictlyLocalAttributes = {
